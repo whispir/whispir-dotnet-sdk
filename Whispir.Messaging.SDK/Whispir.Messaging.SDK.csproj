@@ -89,6 +89,7 @@
     <Compile Include="Entities\WhispirSettings.cs" />
     <Compile Include="Entities\WhispirTemplateAtrributes.cs" />
     <Compile Include="Entities\WorkSpaceResponse.cs" />
+    <Compile Include="Enums\Country.cs" />
     <Compile Include="Enums\MessageStatus.cs" />
     <Compile Include="Enums\MessageType.cs" />
     <Compile Include="Interfaces\IMessage.cs" />

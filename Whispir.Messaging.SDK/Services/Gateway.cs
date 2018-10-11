@@ -34,8 +34,15 @@ namespace Whispir.Messaging.SDK
             if(!String.IsNullOrEmpty(ContentType))
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(ContentType));
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", _settings.ApiAuthorization);
+            client.DefaultRequestHeaders.Add("x-api-key", _settings.ApiKey);
 
             return client;
+        }
+        public async Task<string> getEndpoint()
+        {
+            string url =  String.Format("https://api.{0}.whispir.com", _settings.APIEndpoint.ToString());
+           // string url = "https://api.whispir.com/";
+            return url;
         }
         public async Task<MessageResponse> Post<T>(T entity, string query, string ContentType)
         {
@@ -43,7 +50,7 @@ namespace Whispir.Messaging.SDK
             try
             {
                 var client = GetHttpClient(ContentType);
-                string address = _settings.ApiBaseUrl + insertQueryAPIKey(query);
+                string address = (await getEndpoint()) + insertQueryAPIKey(query);
                 client.Timeout = TimeSpan.FromSeconds(30);
                 var jsonRequest = JsonConvert.SerializeObject(entity);
                 var content = new StringContent(jsonRequest, Encoding.UTF8, ContentType);
@@ -78,7 +85,7 @@ namespace Whispir.Messaging.SDK
             try
             {
                 var client = GetHttpClient(ContentType);
-                string address = _settings.ApiBaseUrl + insertQueryAPIKey(query);
+                string address = (await getEndpoint()) + insertQueryAPIKey(query);
                 client.Timeout = TimeSpan.FromSeconds(30);
                 var jsonRequest = JsonConvert.SerializeObject(entity);
                 var content = new StringContent(jsonRequest, Encoding.UTF8, ContentType);
@@ -113,7 +120,8 @@ namespace Whispir.Messaging.SDK
             try
             {
                 var client = GetHttpClient(ContentType);
-                string address = _settings.ApiBaseUrl + insertQueryAPIKey(query); 
+                string address = (await getEndpoint()) + insertQueryAPIKey(query);
+                _logger.LogInfo("Request:" + address);
                 client.Timeout = TimeSpan.FromSeconds(30);
                 var response = await client.GetAsync(address);
                 var responsecontent = await response.Content.ReadAsStringAsync();

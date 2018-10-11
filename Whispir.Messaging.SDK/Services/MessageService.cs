@@ -90,6 +90,7 @@ namespace Whispir.Messaging.SDK
                     {
                         var Query = String.Format("/callbacks/{0}/calls?{1}&status=FAILED", cb.id, "apikey={0}");
                         _logger.LogInfo("In GetCallBacks");
+                        _logger.LogInfo(Query);
                         var failedcallbacks = await _gateway.Request<CallsResponse>(Query, ContentTypes.CallsResponseContent);
                         foreach (var failedCB in failedcallbacks.calls)
                         {
@@ -113,8 +114,8 @@ namespace Whispir.Messaging.SDK
                 string CallBackID = "";
                 foreach(var call in calls)
                 {
-                    if (CallBackID == "") CallBackID = call.id;
-                    CallIDs.Append(String.Format("&id={0}", call.messageId));
+                    if (CallBackID == "") CallBackID = call.callback.id;
+                    CallIDs.Append(String.Format("&id={0}", call.id));
                 }
 
                 var result = await _gateway.Put(whispirCallBack, String.Format("/callbacks/{0}/calls?{1}{2}", CallBackID,"apikey={0}", CallIDs.ToString()), ContentTypes.CallsResponseContent);

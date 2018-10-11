@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Whispir.Messaging.SDK.Enums;
 
 namespace Whispir.Messaging.SDK
 {
@@ -15,6 +16,7 @@ namespace Whispir.Messaging.SDK
         public string LoggingFolder { get;  set; }
         public string DataBaseFolder { get; set; }
         public int LoggingHours { get; set; }
+        public APIEndpoints APIEndpoint { get; set; }
 
     }
 }
