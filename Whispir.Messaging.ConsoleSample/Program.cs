@@ -15,16 +15,16 @@ namespace Whispir.Messaging.ConsoleSample
             IMessageService service = new MessageService(new WhispirSettings()
             {
                 ApiAuthorization = AppConfig.WhispirAuthorization,
-                ApiBaseUrl = AppConfig.WhispirApiUrl,
+                APIEndpoint = SDK.Enums.APIEndpoints.AU,
                 ApiKey = AppConfig.WhispirApiKey,
-                LoggingFolder = @"E:\Cyberlogic\Development\Cyberlogic\Whispir.Messaging.SDK-master\Whispir.Messaging.ConsoleSample\Logs",
-                DataBaseFolder = @"E:\Cyberlogic\Development\Cyberlogic\Whispir.Messaging.SDK-master\Whispir.Messaging.ConsoleSample\Logs",
+                LoggingFolder = @"E:\Logs",
+                DataBaseFolder = @"E:\Logs",
                 LoggingHours = AppConfig.LoggingHours
             });
 
             // Samples 
             // Simple SMS 
-            IMessage sms = new SMS() { To = "+61phone", Subject = "Simple Test", Content = "Simple Test",CallBackID= "yourcallback - do not use this property if no callback" };
+            IMessage sms = new SMS() { To = "+61407211770", Subject = "Simple Test", Content = "Simple Test",CallBackID= "callbackName" };
             var result = await service.SendMessageAsync(sms);
 
             //sms = new SMS() { To = "+61phone", Subject = "Simple Test-2", Content = "Simple Test-2" };
@@ -90,15 +90,15 @@ namespace Whispir.Messaging.ConsoleSample
             //}
 
             // get CallBacks
-        //    var CallBacks =await service.GetCallBacks();
-            // You can Get the call information by iterating the calls
-            //foreach(var call in CallBacks)
-            //{
-            //    var responseMessage = call.responseMessage.content;
-            //}
+            var CallBacks = await service.GetCallBacks();
+           // You can Get the call information by iterating the calls
+            foreach (var call in CallBacks)
+            {
+                var responseMessage = call.responseMessage.content;
+            }
             // To Update calls with the status to Success, send a List<Calls> to the updateCallStatus
             // will return OK if the update was successfull or null if it failed.
-          //  var status = await service.updateCallStatus(CallBacks);
+              var status = await service.updateCallStatus(CallBacks);
         }
 
         static void Main(string[] args)
