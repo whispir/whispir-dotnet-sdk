@@ -8,8 +8,8 @@ Make sure you have the latest Newtonsoft.Json DLL.
 ```
  IMessageService service = new MessageService(new WhispirSettings()
             {
-                 ApiAuthorization = AppConfig.WhispirAuthorization,
-                ApiBaseUrl = AppConfig.WhispirApiUrl,
+                ApiAuthorization = AppConfig.WhispirAuthorization,
+                APIEndpoint = SDK.Enums.APIEndpoints.IT, //assuming you are using the IT instance. Change it here depending on your instance (AU/AP/AP1,IT,NZ,US)
                 ApiKey = AppConfig.WhispirApiKey,
                 LoggingFolder = @"{PATH TO YOUR LOGGING FOLDER}",
                 DataBaseFolder= @"{PATH TO YOUR DB Folder}",
@@ -18,7 +18,7 @@ Make sure you have the latest Newtonsoft.Json DLL.
 ```
  > ApiAuthorization = "Basic Authentication Given to you By Whispir"
  
- > ApiBaseUrl = "Whispir API URL"
+ > APIEndpoint = "APIEndooint is an enum of country API's"
  
  > ApiKey = "Your Whispit API KEY"
  
@@ -83,12 +83,13 @@ _service.GetMessageStatus({Message ID})
 >If you don't have the Message ID, You have to First Get a List Of Messages and Then send a Status Request for Each Message.
 
 ```
- List<MessageStatusResponse> messageStatus = new List<MessageStatusResponse>();
- 
  var result = await _service.GetMessagesAsync();
  foreach(var msg in result)
  {
-   messageStatus.Add((MessageStatusResponse)await _service.GetMessageStatus(msg.ID));
+   > The Message Status is Now a string
+   var msgresponse = await service.GetMessageStatus(msg.ID);
+   > You can set a message as processed
+   await service.SetMessageAsProcessed(msg.ID);
  }
  ```
 
@@ -104,27 +105,17 @@ _service.GetMessageResponse({Message ID})
 >If you don't have the Message ID, You have to First Get a List Of Messages and Then send a Message Response Request for Each Message.
 
 ```
- List<MessageResponseResponse> responses = new List<MessageResponseResponse>();
+ List<string> responses = new List<string>();
  var result = await _service.GetMessagesAsync();
  foreach (var msg in result)
  {
-   responses.Add((MessageResponseResponse)await _service.GetMessageResponse(msg.ID));
+   var reply = await _service.GetMessageResponse(msg.ID);
  }
 
 ```
 
 
-  ## To Get a List Of Messages That Failed
+  ## To Get a List Of Messages That Failed - this method has become private.
  
 ```
- // get CallBacks
-  var CallBacks =await service.GetCallBacks();
-  // You can Get the call information by iterating the calls
-  foreach(var call in CallBacks)
-  {
-      var responseMessage = call.responseMessage.content;
-  }
-  // To Update calls with the status to Success, send a List<Calls> to the updateCallStatus
-  // will return OK if the update was successfull or null if it failed.
-  var status = await service.updateCallStatus(CallBacks);
 ```
