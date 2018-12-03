@@ -58,25 +58,19 @@ namespace Whispir.Messaging.WebSample.Controllers
         }
         [Route("GetMessageStatus")]
         [HttpGet]
-        public async Task<IHttpActionResult> GetMessageStatus()
+        public async Task<IHttpActionResult> GetMessageStatus(string ID)
         {
-            List<MessageStatusResponse> messageStatus = new List<MessageStatusResponse>();
-            var result = await _service.GetMessagesAsync();
-            foreach(var msg in result)
-            {
-                messageStatus.Add((MessageStatusResponse)await _service.GetMessageStatus(msg.ID));
-            }
-            return Ok(messageStatus);
+            return Ok(await _service.GetMessageStatus(ID));
         }
         [Route("GetMessageResponse")]
         [HttpGet]
         public async Task<IHttpActionResult> GetMessageResponse()
         {
-            List<MessageResponseResponse> responses = new List<MessageResponseResponse>();
+            List<string> responses = new List<string>();
             var result = await _service.GetMessagesAsync();
             foreach (var msg in result)
             {
-                responses.Add((MessageResponseResponse)await _service.GetMessageResponse(msg.ID));
+                responses.Add(await _service.GetMessageResponse(msg.ID));
             }
             return Ok(responses);
         }

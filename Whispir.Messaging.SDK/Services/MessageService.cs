@@ -47,18 +47,104 @@ namespace Whispir.Messaging.SDK
             _logger.LogInfo("In GetMessages");
             return await _gateway.Request<MessageSentResponse>(Query, ContentTypes.MessageContent);
         }
-        public async Task<IResponse> GetMessageStatus(string MessageID)
+        public async Task<bool> SetMessageAsProcessed(string MessageID)
         {
-            var Query = String.Format("/messages/{0}/messagestatus?view=detailed&{1}", MessageID, "apikey={0}");
-            _logger.LogInfo("In GetMessageStatus");
-            return await _gateway.Request<MessageStatusResponse>(Query, ContentTypes.MessageStatusContent);
+            try
+            {
+                var dbMessage = await _database.GetRecord(MessageID);
+                if (dbMessage != null)
+                {
+                    dbMessage.IsProcessed=true;
+                    await _database.UpdateRecord(dbMessage);
+                    return true;
+                }
+            }
+            catch { }
+            return false;
+        }
+        public async Task<string> GetMessageStatus(string MessageID)
+        {
+            // First Check the Status in the DB
+            try
+            {
+                string DBStatus = "";
+                string CurrentStatus = "";
+                bool isProcessed = false;
+                DBMessage dbMessage = null;
+                try
+                {
+                    dbMessage = await _database.GetRecord(MessageID);
+                    DBStatus = dbMessage.MessageStatus;
+                    isProcessed = dbMessage.IsProcessed;
+                    if ( (DBStatus == "DELIVRD" || DBStatus == "FAILED" ) && dbMessage.IsProcessed) return "";
+                    if ((DBStatus == "DELIVRD" || DBStatus == "FAILED") && !dbMessage.IsProcessed) return DBStatus;
+                }
+                catch { }
+                // Get the Status from the API
+                var Query = String.Format("/messages/{0}/messagestatus?view=detailed&{1}", MessageID, "apikey={0}");
+                _logger.LogInfo("In GetMessageStatus");
+                var msgresponse = await _gateway.Request<MessageStatusResponse>(Query, ContentTypes.MessageStatusContent);
+                // Find the Status of the SMS
+                if (msgresponse != null)
+                {
+                    foreach (var MessageStatus in msgresponse.messageStatuses)
+                    {
+                        foreach (var Status in MessageStatus.status)
+                        {
+                            if (Status.type == "sms")
+                            {
+                                if (Status.status != DBStatus)
+                                {
+                                  
+                                        // set the status in the DB And return New DB
+                                        if (dbMessage != null)
+                                        {
+                                            dbMessage.MessageStatus = Status.status.Trim().ToUpper();
+                                            await _database.UpdateRecord(dbMessage);
+                                        }
+                                        //
+                                        CurrentStatus = Status.status.Trim().ToUpper();
+                                        break;
+                                    
+                                }
+                                else
+                                {
+                                    if (!isProcessed)
+                                    {
+                                        // set the status in the DB And return New DB
+                                        if (dbMessage != null)
+                                        {
+                                            dbMessage.MessageStatus = Status.status.Trim().ToUpper();
+                                            await _database.UpdateRecord(dbMessage);
+                                        }
+                                        //
+                                        CurrentStatus = Status.status.Trim().ToUpper();
+                                        break;
+                                    }
+
+                                }
+                            }
+                        }
+                    }
+                    return CurrentStatus;
+                }
+            }
+            catch { }
+            return null;
         }
 
-        public async Task<IResponse> GetMessageResponse(string MessageID)
+        public async Task<string> GetMessageResponse(string MessageID)
         {
             var Query = String.Format("/messages/{0}/messageresponses?view=detailed&{1}", MessageID, "apikey={0}");
             _logger.LogInfo("In GetMessageResponse");
-            return await _gateway.Request<MessageResponseResponse>(Query, ContentTypes.MessageResponseContent);
+            var response = await _gateway.Request<MessageResponseResponse>(Query, ContentTypes.MessageResponseContent);
+            try
+            {
+                var reply =  response.messageresponses[0].responseMessage.content;
+                if (reply != "N/A") return reply;
+            }
+            catch { }
+            return "";
         }
         public async Task<IResponse> GetTemplates()
         {
@@ -78,7 +164,7 @@ namespace Whispir.Messaging.SDK
             _logger.LogInfo("In GetCallBacksSetup");
             return await _gateway.Request<CallBacksResponse>(Query, ContentTypes.CallBacksResponseContent);
         }
-        public async Task<List<Call>> GetCallBacks()
+        private async Task<List<Call>> GetCallBacks()
         {
             var CallBacks = (CallBacksResponse)await GetCallBacksSetup();
             List<Call> Calls = null;
@@ -104,7 +190,7 @@ namespace Whispir.Messaging.SDK
             catch { }
             return Calls;
         }
-        public async Task<string> updateCallStatus(List<Call> calls)
+        private async Task<string> updateCallStatus(List<Call> calls)
         {
             try
             {
@@ -112,13 +198,13 @@ namespace Whispir.Messaging.SDK
                 whispirCallBack.status = "SUCCESS";
                 StringBuilder CallIDs = new StringBuilder();
                 string CallBackID = "";
-                foreach(var call in calls)
+                foreach (var call in calls)
                 {
                     if (CallBackID == "") CallBackID = call.callback.id;
                     CallIDs.Append(String.Format("&id={0}", call.id));
                 }
 
-                var result = await _gateway.Put(whispirCallBack, String.Format("/callbacks/{0}/calls?{1}{2}", CallBackID,"apikey={0}", CallIDs.ToString()), ContentTypes.CallsResponseContent);
+                var result = await _gateway.Put(whispirCallBack, String.Format("/callbacks/{0}/calls?{1}{2}", CallBackID, "apikey={0}", CallIDs.ToString()), ContentTypes.CallsResponseContent);
                 return "OK";
             }
             catch (Exception exception)

@@ -12,5 +12,6 @@ namespace Whispir.Messaging.SDK
         Task UpdateRecord(DBMessage entity);
         Task deleteRecord(DBMessage entity);
         Task<List<DBMessage>> GetRecords();
+        Task<DBMessage> GetRecord(string ID);
     }
 }

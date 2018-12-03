@@ -48,7 +48,7 @@ namespace Whispir.Messaging.SDK
                     _logger.LogInfo(String.Format("Message - Body = {0}, Subject={1}, To={2}, ID={3}",sms.Content,sms.Subject,sms.To,result.MessageID));
                     sms.MessageID = result.MessageID;
                     sms.MessageStatus = CurrentMessageStatus.Pending;
-                    await _database.InsertRecord(new DBMessage() { ErrorMessage="", ID = result.MessageID, TimeStamp = DateTime.Now, MessageType = MessageType.SMS.ToString(), MessageStatus = CurrentMessageStatus.Sent.ToString()  });
+                    await _database.InsertRecord(new DBMessage() { ErrorMessage="", ID = result.MessageID, TimeStamp = DateTime.Now, MessageType = MessageType.SMS.ToString(), MessageStatus = CurrentMessageStatus.Pending.ToString()  });
                 }
                 else
                 {

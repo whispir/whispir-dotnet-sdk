@@ -26,7 +26,7 @@ namespace Whispir.Messaging.WebSample
             .WithParameter("settings", new WhispirSettings()
             {
                 ApiAuthorization = WebConfig.WhispirAuthorization,
-                ApiBaseUrl = WebConfig.WhispirApiUrl,
+                APIEndpoint = SDK.Enums.APIEndpoints.IT,
                 ApiKey = WebConfig.WhispirApiKey,
                 LoggingFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "App_Data"),
                 DataBaseFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "App_Data"),
@@ -57,7 +57,6 @@ namespace Whispir.Messaging.WebSample
     public static class WebConfig
     {
         public static string WhispirApiKey = ConfigurationManager.AppSettings["WhispirApiKey"];
-        public static string WhispirApiUrl = ConfigurationManager.AppSettings["WhispirApiUrl"];
         public static string WhispirAuthorization = ConfigurationManager.AppSettings["WhispirApiAuthorization"];
         public static int LoggingHours = Convert.ToInt32(ConfigurationManager.AppSettings["LoggingHours"]);
     }

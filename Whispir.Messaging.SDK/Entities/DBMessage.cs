@@ -13,6 +13,8 @@ namespace Whispir.Messaging.SDK
         public string MessageType { get; set; }
         public string ErrorMessage { get; set; }
         public string MessageStatus { get; set; }
+        public bool IsProcessed { get; set; }
+        public string Reply { get; set; }
     }
 
 }

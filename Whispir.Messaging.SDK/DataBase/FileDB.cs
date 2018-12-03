@@ -34,10 +34,32 @@ namespace Whispir.Messaging.SDK
                 _logger.LogInfo("Cannot Insert Records Into Database on the File System, Make Sure the Folder has Proper Read/Write rights. Exception:" + exception);
             }
         }
-
-        public Task UpdateRecord(DBMessage entity)
+        public async Task<DBMessage> GetRecord(string ID)
         {
-            throw new NotImplementedException();
+            using (var database = new LiteDatabase(Path.Combine(_folder, "Whispir.db")))
+            {
+                // Get customer collection
+                var _messages = database.GetCollection<DBMessage>("Messages");
+                // Do the Query
+                return _messages.FindById(ID);
+            }
+            return null;
+        }
+        public async Task UpdateRecord(DBMessage entity)
+        {
+            using (var database = new LiteDatabase(Path.Combine(_folder, "Whispir.db")))
+            {
+                // Get customer collection
+                var _messages = database.GetCollection<DBMessage>("Messages");
+                // Do the Query
+                var DBMessage = _messages.FindById(entity.ID);
+                if (DBMessage != null)
+                {
+                    DBMessage.MessageStatus = entity.MessageStatus;
+                    DBMessage.Reply = entity.Reply;
+                    _messages.Update(DBMessage);
+                }
+            }
         }
 
         public Task deleteRecord(DBMessage entity)

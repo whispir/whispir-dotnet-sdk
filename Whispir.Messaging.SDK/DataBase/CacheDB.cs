@@ -50,10 +50,45 @@ namespace Whispir.Messaging.SDK
             }
 
         }
+        public async Task<DBMessage> GetRecord(string ID)
+        {
+            if (currentCache["MessageTable"] == null)
+            {
+                Messages = new List<DBMessage>();
+            }
+            else
+            {
+                Messages = (List<DBMessage>)currentCache["MessageTable"];
+                DateTime cuttOffTime = DateTime.Now.AddHours(-(_loggingHours));
+                Messages.RemoveAll(m => m.TimeStamp <= cuttOffTime);
+                policy = new CacheItemPolicy { SlidingExpiration = TimeSpan.FromHours(_loggingHours) };
+                currentCache.Set("MessageTable", Messages, policy);
+                return Messages.Where(m => m.ID == ID).FirstOrDefault(); ;
+            }
 
+            return null;
+        }
         public async Task UpdateRecord(DBMessage entity)
         {
-            throw new NotImplementedException();
+            if (currentCache["MessageTable"] == null)
+            {
+                Messages = new List<DBMessage>();
+            }
+            else
+            {
+                Messages = (List<DBMessage>)currentCache["MessageTable"];
+                DateTime cuttOffTime = DateTime.Now.AddHours(-(_loggingHours));
+                Messages.RemoveAll(m => m.TimeStamp <= cuttOffTime);
+                var message = Messages.Where(m => m.ID == entity.ID).FirstOrDefault(); ;
+                if(message != null)
+                {
+                    message.MessageStatus = entity.MessageStatus;
+                    message.Reply = entity.Reply;
+                    policy = new CacheItemPolicy { SlidingExpiration = TimeSpan.FromHours(_loggingHours) };
+                    currentCache.Set("MessageTable", Messages, policy);
+                }
+            }
+
         }
 
         public async Task deleteRecord(DBMessage entity)

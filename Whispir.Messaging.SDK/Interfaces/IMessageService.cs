@@ -8,13 +8,14 @@ namespace Whispir.Messaging.SDK
     {
         Task<IMessage> SendMessageAsync(IMessage Message);
         Task<List<DBMessage>> GetMessagesAsync();
-        Task<IResponse> GetMessageStatus(string MessageID);
-        Task<IResponse> GetMessageResponse(string MessageID);
+        Task<string> GetMessageStatus(string MessageID);
+        Task<string> GetMessageResponse(string MessageID);
         Task<IResponse> GetMessages(string MessageID);
         Task<IResponse> GetTemplates();
         Task<IResponse> GetworkSpaces();
-        Task<List<Call>> GetCallBacks();
-        Task<string> updateCallStatus(List<Call> calls);
+        //Task<List<Call>> GetCallBacks();
+        //Task<string> updateCallStatus(List<Call> calls);
+        Task<bool> SetMessageAsProcessed(string MessageID);
     }
     public interface IBaseMessageService : IDisposable
     {
