@@ -1,4 +1,4 @@
-﻿using LiteDB;
+using LiteDB;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -57,6 +57,7 @@ namespace Whispir.Messaging.SDK
                 {
                     DBMessage.MessageStatus = entity.MessageStatus;
                     DBMessage.Reply = entity.Reply;
+                    DBMessage.IsProcessed = entity.IsProcessed;
                     _messages.Update(DBMessage);
                 }
             }
