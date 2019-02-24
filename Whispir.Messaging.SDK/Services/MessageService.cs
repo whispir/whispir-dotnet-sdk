@@ -76,8 +76,8 @@ namespace Whispir.Messaging.SDK
                     dbMessage = await _database.GetRecord(MessageID);
                     DBStatus = dbMessage.MessageStatus;
                     isProcessed = dbMessage.IsProcessed;
-                    if ( (DBStatus == "DELIVRD" || DBStatus == "FAILED" ) && dbMessage.IsProcessed) return "";
-                    if ((DBStatus == "DELIVRD" || DBStatus == "FAILED") && !dbMessage.IsProcessed) return DBStatus;
+                    if (dbMessage.IsProcessed) return "";
+                    if ((DBStatus == "DELIVRD" || DBStatus == "FAILED")) return DBStatus;
                 }
                 catch { }
                 // Get the Status from the API
